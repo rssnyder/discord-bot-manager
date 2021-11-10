@@ -12,9 +12,6 @@ def create_bot(team: str) -> str:
     Create a new bot in a team
     """
 
-    if not team:
-        return None
-
     response = post(
         "https://discord.com/api/v9/applications",
         headers={
@@ -48,9 +45,6 @@ def create_bot_token(bot_id: str) -> str:
     """
     Create a new token for a new bot
     """
-
-    if not bot_id:
-        return None
 
     response = post(
         f"https://discord.com/api/v9/applications/{bot_id}/bot",
