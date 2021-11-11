@@ -7,6 +7,9 @@ from json import loads
 from requests import post, exceptions
 
 
+TEAMS = loads(getenv("TEAMS"))
+
+
 def create_bot(team: str) -> str:
     """
     Create a new bot in a team
@@ -20,12 +23,9 @@ def create_bot(team: str) -> str:
             "Accept-Language": "en-US,en;q=0.5",
             "Content-Type": "application/json",
             "Authorization": getenv("AUTH"),
-            "Connection": "keep-alive"
+            "Connection": "keep-alive",
         },
-        json={
-            "name": "Discord Stock Ticker",
-            "team_id": team
-        }
+        json={"name": "Discord Stock Ticker", "team_id": team},
     )
 
     if response.status_code == 403:
@@ -54,8 +54,8 @@ def create_bot_token(bot_id: str) -> str:
             "Accept-Language": "en-US,en;q=0.5",
             "Content-Type": "application/json",
             "Authorization": getenv("AUTH"),
-            "Connection": "keep-alive"
-        }
+            "Connection": "keep-alive",
+        },
     )
 
     response.raise_for_status()
@@ -80,18 +80,16 @@ def store_bot(location: str, table: str, bot_id: str, bot_token: str) -> None:
 
 if __name__ == "__main__":
 
-    teams = loads(getenv("TEAMS"))
-
     new_id = ""
     while not new_id:
-        team = teams.pop()
+        team = TEAMS.pop()
         print(f"using {team}")
         new_id = create_bot(team)
 
     new_token = create_bot_token(new_id)
     if new_id and new_token:
         print(f"{new_id} '{new_token}'")
-        store_bot(getenv("DST_DB"), getenv("DST_DB_TABLE"), new_id, new_token)
+        store_bot(getenv("DB"), getenv("DB_TABLE"), new_id, new_token)
         print("saved")
     else:
         print(new_id)

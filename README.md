@@ -7,10 +7,10 @@ a bot to help you manage your other bots
 lazy: using the browser dev tools, capture a post call and view the `Authorization` header
 
 ```shell
-export AUTH='<header: Authorization>'
-export DST_DB_TABLE='newbots' # optional
-export DST_DB='/home/riley/Documents/isengard/newbots' # optional
-export TEAMS='["00000000000000"]' # optional
+export AUTH='mfa_' # Authorization header
+export TEAMS='["00000000000000"]' # json of team ids to create bots in
+export DB='./bots' # optional
+export DB_TABLE='bots' # optional
 ```
 
 ## main

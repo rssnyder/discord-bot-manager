@@ -1,4 +1,5 @@
 from typing import Optional
+from os import getenv
 import logging
 
 from fastapi import FastAPI
@@ -35,11 +36,11 @@ def bot_new(store: bool = False):
     except:
         logging.error("Unable to generate bot token")
         return {"id": new_id}
-    
+
     if not new_token:
         return {"id": new_id}
-    
+
     if store:
-        store_bot(getenv("DST_DB"), getenv("DST_DB_TABLE"), new_id, new_token)
-        
+        store_bot(getenv("DB"), getenv("DB_TABLE"), new_id, new_token)
+
     return {"id": new_id, "token": new_token}
