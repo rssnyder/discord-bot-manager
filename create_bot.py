@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import logging
 import sqlite3
 from os import getenv
@@ -65,31 +64,3 @@ def create_bot_token(bot_id: str) -> str:
     except:
         logging.error(response.text)
         return ""
-
-
-def store_bot(location: str, table: str, bot_id: str, bot_token: str) -> None:
-    """
-    Store bot into database
-    """
-
-    con = sqlite3.connect(location)
-    con.execute("insert into newbots values (?, ?)", (bot_id, bot_token))
-    con.commit()
-    con.close()
-
-
-if __name__ == "__main__":
-
-    new_id = ""
-    while not new_id:
-        team = TEAMS.pop()
-        print(f"using {team}")
-        new_id = create_bot(team)
-
-    new_token = create_bot_token(new_id)
-    if new_id and new_token:
-        print(f"{new_id} '{new_token}'")
-        store_bot(getenv("DB"), getenv("DB_TABLE"), new_id, new_token)
-        print("saved")
-    else:
-        print(new_id)

@@ -5,9 +5,19 @@ import logging
 from fastapi import FastAPI
 from requests.exceptions import HTTPError
 
-from create_bot import create_bot, create_bot_token, store_bot, TEAMS
+import psycopg2
+
+from create_bot import create_bot, create_bot_token, TEAMS
+from db import store_bot, get_bot, claim_bot, unclaimed_bots
 
 app = FastAPI()
+
+conn = psycopg2.connect(
+    host=getenv("DB_HOST"),
+    database=getenv("DB_DB"),
+    user=getenv("DB_USER"),
+    password=getenv("DB_PASS"),
+)
 
 
 @app.get("/")
@@ -41,6 +51,58 @@ def bot_new(store: bool = False):
         return {"id": new_id}
 
     if store:
-        store_bot(getenv("DB"), getenv("DB_TABLE"), new_id, new_token)
+        if store_bot(conn, new_id, new_token):
+            new_token = "<redacted>"
 
     return {"id": new_id, "token": new_token}
+
+
+@app.get("/bot/store")
+def bot_store(bot_id: str, bot_token: str, claimed: bool = False):
+    """
+    Store an existing bot in the db
+    Optional: set as claimed (in use)
+    """
+
+    if store_bot(conn, bot_id, bot_token):
+        return {"id": bot_id}
+    else:
+        return {}
+
+
+@app.get("/bot/get")
+def bot_get(claimed: bool = False):
+    """
+    Get a bot from the db
+    Optional: get claimed bot
+    """
+
+    bot = get_bot(conn, claimed)
+
+    if bot:
+        return {"id": bot[0], "token": bot[1]}
+    else:
+        return {}
+
+
+@app.get("/bot/claim")
+def bot_get(bot_id: str):
+    """
+    Set a bot as claimed in the db
+    """
+
+    if claim_bot(conn, bot_id):
+        return {"id": bot_id}
+    else:
+        return {}
+
+
+@app.get("/bot/unclaimed")
+def bot_unclaimed():
+    """
+    Get unclaimed bots from db
+    """
+
+    unclaimed = unclaimed_bots(conn)
+
+    return {"count": unclaimed}

@@ -2,6 +2,17 @@
 
 an api to help you manage your other bots
 
+## storage
+
+postgres
+
+```shell
+export DB_HOST="" # postgres host
+export DB_DB="" # postgres database
+export DB_USER="" # postgres user
+export DB_PASS="" # postgres password
+```
+
 ## auth
 
 lazy: using the browser dev tools, capture a post call and view the `Authorization` header
@@ -9,8 +20,6 @@ lazy: using the browser dev tools, capture a post call and view the `Authorizati
 ```shell
 export AUTH='mfa_' # Authorization header
 export TEAMS='["00000000000000"]' # json of team ids to create bots in
-export DB='./bots' # optional
-export DB_TABLE='bots' # optional
 ```
 
 ## main
@@ -25,8 +34,12 @@ create a new discord application
 
 create a new discord bot and generate a token (these together are one action)
 
-store the corresponding id and token in a database (totally optional)
+## db
 
-run as a script if you happen to be remoted into the server
+store a new bot in the db
 
-`./create_bot.py`
+get a bot from the db
+
+mark a bot as claimed
+
+get count of unclimed bots
