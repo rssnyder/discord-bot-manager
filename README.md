@@ -1,6 +1,6 @@
 # discord-bot-manager
 
-a bot to help you manage your other bots
+an api to help you manage your other bots
 
 ## storage
 
@@ -24,7 +24,7 @@ export TEAMS='["00000000000000"]' # json of team ids to create bots in
 
 ## main
 
-fastapi server to enabling creating bots via http
+fastapi server to enable bot creation via http
 
 `uvicorn main:app`
 
@@ -32,7 +32,7 @@ fastapi server to enabling creating bots via http
 
 create a new discord application
 
-create a new discord bot and generate a token
+create a new discord bot and generate a token (these together are one action)
 
 ## db
 
