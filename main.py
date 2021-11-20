@@ -72,8 +72,6 @@ def bot_new(store: bool = False):
         if store_bot(conn, new_id, new_token):
             new_token = "<redacted>"
 
-    free_bots.set(unclaimed_bots(conn))
-
     return {"id": new_id, "token": new_token}
 
 
@@ -85,7 +83,6 @@ def bot_store(bot_id: str, bot_token: str, claimed: bool = False):
     """
 
     if store_bot(conn, bot_id, bot_token):
-        free_bots.set(unclaimed_bots(conn))
         return {"id": bot_id}
     else:
         return {}
@@ -113,7 +110,6 @@ def bot_get(bot_id: str):
     """
 
     if claim_bot(conn, bot_id):
-        free_bots.set(unclaimed_bots(conn))
         return {"id": bot_id}
     else:
         return {}
