@@ -35,7 +35,7 @@ def bots_total() -> Callable[[metrics.Info], None]:
     return instrumentation
 
 
-Instrumentator().add(http_requested_languages_total()).instrument(app).expose(app)
+Instrumentator().add(bots_total()).instrument(app).expose(app)
 
 
 @app.get("/")
