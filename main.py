@@ -7,7 +7,7 @@ from requests.exceptions import HTTPError
 
 import psycopg2
 
-from prometheus_fastapi_instrumentator import Instrumentator
+from prometheus_fastapi_instrumentator import Instrumentator, metrics
 from prometheus_client import Gauge
 
 from create_bot import create_bot, create_bot_token, TEAMS
@@ -23,13 +23,13 @@ conn = psycopg2.connect(
 )
 
 
-def bots_total() -> Callable[[Info], None]:
+def bots_total() -> Callable[[metrics.Info], None]:
     """
     Export the number of free bots left in the db
     """
     METRIC = Gauge("bots_total", "bots in the db", labelnames=("status",))
 
-    def instrumentation(info: Info) -> None:
+    def instrumentation(info: metrics.Info) -> None:
         METRIC.labels("status", "free").set(unclaimed_bots(conn))
 
     return instrumentation

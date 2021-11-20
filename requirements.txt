@@ -3,3 +3,4 @@ requests
 uvicorn[standard]
 psycopg2-binary
 prometheus-client
+prometheus_fastapi_instrumentator
