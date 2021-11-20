@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Callable
 from os import getenv
 import logging
 
@@ -6,6 +6,9 @@ from fastapi import FastAPI
 from requests.exceptions import HTTPError
 
 import psycopg2
+
+from prometheus_fastapi_instrumentator import Instrumentator
+from prometheus_client import Gauge
 
 from create_bot import create_bot, create_bot_token, TEAMS
 from db import store_bot, get_bot, claim_bot, unclaimed_bots
@@ -18,6 +21,21 @@ conn = psycopg2.connect(
     user=getenv("DB_USER"),
     password=getenv("DB_PASS"),
 )
+
+
+def bots_total() -> Callable[[Info], None]:
+    """
+    Export the number of free bots left in the db
+    """
+    METRIC = Gauge("bots_total", "bots in the db", labelnames=("status",))
+
+    def instrumentation(info: Info) -> None:
+        METRIC.labels("status", "free").set(unclaimed_bots(conn))
+
+    return instrumentation
+
+
+Instrumentator().add(http_requested_languages_total()).instrument(app).expose(app)
 
 
 @app.get("/")
@@ -54,6 +72,8 @@ def bot_new(store: bool = False):
         if store_bot(conn, new_id, new_token):
             new_token = "<redacted>"
 
+    free_bots.set(unclaimed_bots(conn))
+
     return {"id": new_id, "token": new_token}
 
 
@@ -65,6 +85,7 @@ def bot_store(bot_id: str, bot_token: str, claimed: bool = False):
     """
 
     if store_bot(conn, bot_id, bot_token):
+        free_bots.set(unclaimed_bots(conn))
         return {"id": bot_id}
     else:
         return {}
@@ -92,6 +113,7 @@ def bot_get(bot_id: str):
     """
 
     if claim_bot(conn, bot_id):
+        free_bots.set(unclaimed_bots(conn))
         return {"id": bot_id}
     else:
         return {}

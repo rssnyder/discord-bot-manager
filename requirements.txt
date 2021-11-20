@@ -2,3 +2,4 @@ fastapi
 requests
 uvicorn[standard]
 psycopg2-binary
+prometheus-client
