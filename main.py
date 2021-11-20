@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Callable
 from os import getenv
 import logging
 
@@ -6,6 +6,9 @@ from fastapi import FastAPI
 from requests.exceptions import HTTPError
 
 import psycopg2
+
+from prometheus_fastapi_instrumentator import Instrumentator, metrics
+from prometheus_client import Gauge
 
 from create_bot import create_bot, create_bot_token, TEAMS
 from db import store_bot, get_bot, claim_bot, unclaimed_bots
@@ -18,6 +21,21 @@ conn = psycopg2.connect(
     user=getenv("DB_USER"),
     password=getenv("DB_PASS"),
 )
+
+
+def bots_total() -> Callable[[metrics.Info], None]:
+    """
+    Export the number of free bots left in the db
+    """
+    METRIC = Gauge("bots_total", "bots in the db", labelnames=("status",))
+
+    def instrumentation(info: metrics.Info) -> None:
+        METRIC.labels("free").set(unclaimed_bots(conn))
+
+    return instrumentation
+
+
+Instrumentator().add(bots_total()).instrument(app).expose(app)
 
 
 @app.get("/")
