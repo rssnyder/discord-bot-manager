@@ -30,7 +30,7 @@ def bots_total() -> Callable[[metrics.Info], None]:
     METRIC = Gauge("bots_total", "bots in the db", labelnames=("status",))
 
     def instrumentation(info: metrics.Info) -> None:
-        METRIC.labels("status", "free").set(unclaimed_bots(conn))
+        METRIC.labels("free").set(unclaimed_bots(conn))
 
     return instrumentation
 
