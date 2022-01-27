@@ -24,6 +24,30 @@ def store_bot(conn, bot_id: str, bot_token: str, claimed: bool = False) -> str:
     return result
 
 
+def stored_bot(conn, bot_id: str) -> bool:
+    """
+    Check if bot in db
+    """
+
+    q = """SELECT CLIENTID FROM newbots
+            WHERE CLIENTID = %s
+            LIMIT 1;"""
+
+    cur = conn.cursor()
+
+    cur.execute(q, (bot_id,))
+
+    result = False
+    if cur.fetchone():
+        result = True
+
+    conn.commit()
+
+    cur.close()
+
+    return result
+
+
 def get_bot(conn, claimed: bool = False) -> tuple:
     """
     Store bot into database
@@ -65,6 +89,83 @@ def claim_bot(conn, bot_id: str) -> str:
     if result:
         logging.info(f"claimed: {result}")
         conn.commit()
+
+    cur.close()
+
+    return result
+
+
+def unclaim_bot(conn, bot_id: str) -> str:
+    """
+    Set a bot as unclaimed
+    """
+
+    q = """UPDATE newbots
+            SET CLAIMED = false
+            WHERE CLIENTID = %s
+            RETURNING CLIENTID;;"""
+
+    cur = conn.cursor()
+
+    cur.execute(q, (bot_id,))
+    result = cur.fetchone()
+
+    if result:
+        logging.info(f"unclaimed: {result}")
+        conn.commit()
+
+    cur.close()
+
+    return result
+
+
+def sync_token(conn, bot: dict) -> str:
+    """
+    Make sure token in db is accurate
+    """
+
+    q = """UPDATE newbots
+            SET TOKEN = %s
+            WHERE CLIENTID = %s
+            RETURNING CLIENTID;;"""
+
+    cur = conn.cursor()
+
+    cur.execute(q, (bot["bot"]["token"], bot["id"]))
+    result = cur.fetchone()
+
+    if result:
+        logging.info(f"sycned: {result}")
+        conn.commit()
+
+    cur.close()
+
+    return result
+
+
+def sync_tokens(conn, bots: list = []) -> bool:
+    """
+    Make sure all tokens in db are accurate
+    """
+
+    q = """UPDATE newbots
+            SET TOKEN = %s
+            WHERE CLIENTID = %s
+            RETURNING CLIENTID;;"""
+
+    cur = conn.cursor()
+
+    result = True
+    for bot in bots:
+        cur.execute(q, (bot["bot"]["token"], bot["id"]))
+        result = cur.fetchone()
+
+        if result:
+            logging.info(f"updated: {result}")
+        else:
+            result = False
+
+    conn.commit()
 
     cur.close()
 
