@@ -2,6 +2,8 @@
 
 an api to help you manage your other bots
 
+master is not assumed stable
+
 ## storage
 
 postgres

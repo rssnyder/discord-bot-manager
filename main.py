@@ -119,7 +119,7 @@ def claim_bot(bot_id: str):
     Set a bot as claimed in the db
     """
 
-    if get_bot_db(conn, bot_id):
+    if claim_bot(conn, bot_id):
         return {"id": bot_id}
     else:
         return {}
