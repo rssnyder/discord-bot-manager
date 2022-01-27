@@ -13,8 +13,8 @@ from prometheus_client import Gauge
 from create_bot import get_bot, get_bots, create_bot, create_bot_token, get_teams
 from db import (
     get_bot as get_bot_db,
-    store_bot,
-    claim_bot,
+    store_bot as store_bot_db,
+    claim_bot as claim_bot_db,
     unclaim_bot,
     unclaimed_bots,
     sync_token,
@@ -79,7 +79,7 @@ def new_bot(store: bool = False):
         return {"id": new_id}
 
     if store:
-        if store_bot(conn, new_id, new_token):
+        if store_bot_db(conn, new_id, new_token):
             new_token = "<redacted>"
 
     return {"id": new_id, "token": new_token}
@@ -92,7 +92,7 @@ def store_bot(bot_id: str, bot_token: str, claimed: bool = False):
     Optional: set as claimed (in use)
     """
 
-    if store_bot(conn, bot_id, bot_token):
+    if store_bot_db(conn, bot_id, bot_token):
         return {"id": bot_id}
     else:
         return {}
@@ -119,7 +119,7 @@ def claim_bot(bot_id: str):
     Set a bot as claimed in the db
     """
 
-    if claim_bot(conn, bot_id):
+    if claim_bot_db(conn, bot_id):
         return {"id": bot_id}
     else:
         return {}
