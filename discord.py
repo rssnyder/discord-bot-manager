@@ -3,7 +3,7 @@ import sqlite3
 from os import getenv
 from json import loads
 
-from requests import post, get, exceptions
+from requests import post, get, patch, exceptions
 
 
 def create_bot(team: str) -> str:
@@ -139,3 +139,25 @@ def get_bots() -> list:
     except:
         logging.error(response.text)
         return []
+
+
+def change_bot_photo(token: str, base64_photo: str) -> bool:
+    """
+    Change the photo of the bot
+    """
+
+    resp = patch(
+        "https://discord.com/api/users/@me",
+        headers={"Authorization": f"Bot {token}", "Content-Type": "application/json"},
+        json={"avatar": base64_photo},
+    )
+
+    try:
+        resp.raise_for_status()
+    except:
+        return False
+
+    if not resp.json().get("avatar", False):
+        return False
+
+    return True
