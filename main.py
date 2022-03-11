@@ -1,8 +1,10 @@
 from typing import Optional, Callable
 from os import getenv
+from base64 import b64encode
 import logging
 
 from fastapi import FastAPI
+from requests import get
 from requests.exceptions import HTTPError
 
 import psycopg2
@@ -10,9 +12,17 @@ import psycopg2
 from prometheus_fastapi_instrumentator import Instrumentator, metrics
 from prometheus_client import Gauge
 
-from create_bot import get_bot, get_bots, create_bot, create_bot_token, get_teams
+from discord import (
+    get_bot,
+    get_bots,
+    create_bot,
+    create_bot_token,
+    get_teams,
+    change_bot_photo,
+)
 from db import (
     get_bot as get_bot_db,
+    get_bot_id as get_bot_id_db,
     store_bot as store_bot_db,
     claim_bot as claim_bot_db,
     unclaim_bot,
@@ -204,3 +214,23 @@ def unclaimed_bot_count():
     unclaimed = unclaimed_bots(conn)
 
     return {"count": unclaimed}
+
+
+@app.put("/bot/photo")
+def bot_photo(bot_id: str = "", photo_url: str = "") -> bool:
+    """
+    Change the photo of the bot
+    """
+
+    bot = get_bot_id_db(conn, bot_id)
+
+    if not bot:
+        return {}
+
+    photo_data = get(photo_url).content
+
+    photo_encoded = f'data:image/{photo_url.split(".")[-1]};base64,' + b64encode(
+        photo_data
+    ).decode("ascii")
+
+    return change_bot_photo(bot[1], photo_encoded)

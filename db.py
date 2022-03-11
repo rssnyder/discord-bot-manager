@@ -50,7 +50,7 @@ def stored_bot(conn, bot_id: str) -> bool:
 
 def get_bot(conn, claimed: bool = False) -> tuple:
     """
-    Store bot into database
+    Get bot from db
     """
 
     q = """SELECT CLIENTID, TOKEN FROM newbots
@@ -65,6 +65,25 @@ def get_bot(conn, claimed: bool = False) -> tuple:
     if result:
         logging.info(f"got: {result}")
         conn.commit()
+
+    cur.close()
+
+    return result
+
+
+def get_bot_id(conn, id: str = "") -> tuple:
+    """
+    Get specific bot from db
+    """
+
+    q = """SELECT CLIENTID, TOKEN FROM newbots
+            WHERE CLIENTID = %s
+            LIMIT 1;"""
+
+    cur = conn.cursor()
+
+    cur.execute(q, (id,))
+    result = cur.fetchone()
 
     cur.close()
 
