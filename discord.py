@@ -21,7 +21,7 @@ def create_bot(team: str) -> str:
             "Authorization": getenv("AUTH"),
             "Connection": "keep-alive",
         },
-        json={"name": "Discord Stock Ticker", "team_id": team},
+        json={"name": "DST Bot", "team_id": team},
     )
 
     if response.status_code == 403:
@@ -37,7 +37,7 @@ def create_bot(team: str) -> str:
         return ""
 
 
-def create_bot_token(bot_id: str) -> str:
+def create_bot_token(bot_id: str) -> bool:
     """
     Create a new token for a new bot
     """
@@ -56,11 +56,14 @@ def create_bot_token(bot_id: str) -> str:
 
     response.raise_for_status()
 
-    try:
-        return response.json().get("token", "")
-    except:
-        logging.error(response.text)
-        return ""
+    return True
+    
+    #token = response.json().get("token", "")
+    #if token:
+    #    return token
+    #else:
+    #    logging.error(response.text)
+    #    return ""
 
 
 def get_teams() -> list:

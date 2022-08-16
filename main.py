@@ -3,7 +3,7 @@ from os import getenv
 from base64 import b64encode
 import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from requests import get
 from requests.exceptions import HTTPError
 
@@ -81,18 +81,22 @@ def new_bot(store: bool = False):
 
     try:
         new_token = create_bot_token(new_id)
-    except:
-        logging.error("Unable to generate bot token")
+    except Exception as e:
+        logging.error("Unable to generate bot")
+        logging.error(e)
         return {"id": new_id}
 
     if not new_token:
+        logging.error("Unable to generate bot")
+        logging.error(e)
         return {"id": new_id}
 
-    if store:
-        if store_bot_db(conn, new_id, new_token):
-            new_token = "<redacted>"
+    #if store:
+    #    if store_bot_db(conn, new_id, new_token):
+    #        new_token = "<redacted>"
 
-    return {"id": new_id, "token": new_token}
+    #return {"id": new_id, "token": new_token}
+    return new_token
 
 
 @app.post("/bot/store")
@@ -102,10 +106,25 @@ def store_bot(bot_id: str, bot_token: str, claimed: bool = False):
     Optional: set as claimed (in use)
     """
 
-    if store_bot_db(conn, bot_id, bot_token):
+    if store_bot_db(conn, bot_id, bot_token, claimed):
         return {"id": bot_id}
     else:
         return {}
+
+
+@app.get("/bot/check")
+def store_bot(bot_id: str, response: Response):
+    """
+    Get an existing bot from the db
+    """
+
+    bot = get_bot_id_db(conn, bot_id)
+
+    if bot:
+        return {"id": bot[0], "token": bot[1]}
+    else:
+        response.status_code = 500
+        return "not found"
 
 
 @app.get("/bot/get")
