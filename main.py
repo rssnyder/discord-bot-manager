@@ -30,6 +30,7 @@ from db import (
     sync_token,
     sync_tokens,
     stored_bot,
+    all_bots,
 )
 
 app = FastAPI()
@@ -55,7 +56,9 @@ def bots_total() -> Callable[[metrics.Info], None]:
     return instrumentation
 
 
-Instrumentator().add(bots_total()).instrument(app).expose(app)
+@app.on_event("startup")
+async def startup():
+    Instrumentator().add(bots_total()).instrument(app).expose(app)
 
 
 @app.get("/")
