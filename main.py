@@ -30,6 +30,7 @@ from db import (
     sync_token,
     sync_tokens,
     stored_bot,
+    all_bots,
 )
 
 app = FastAPI()
@@ -44,17 +45,20 @@ conn = psycopg2.connect(
 
 def bots_total() -> Callable[[metrics.Info], None]:
     """
-    Export the number of free bots left in the db
+    Export the number of bots in the db
     """
-    METRIC = Gauge("bots_total", "bots in the db", labelnames=("status",))
+    METRIC = Gauge("bots", "bots in the db", labelnames=("status",))
 
     def instrumentation(info: metrics.Info) -> None:
-        METRIC.labels("free").set(unclaimed_bots(conn))
+        METRIC.labels("unclaimed").set(unclaimed_bots(conn))
+        METRIC.labels("total").set(all_bots(conn))
 
     return instrumentation
 
 
-Instrumentator().add(bots_total()).instrument(app).expose(app)
+@app.on_event("startup")
+async def startup():
+    Instrumentator().add(bots_total()).instrument(app).expose(app)
 
 
 @app.get("/")
@@ -91,11 +95,11 @@ def new_bot(store: bool = False):
         logging.error(e)
         return {"id": new_id}
 
-    #if store:
+    # if store:
     #    if store_bot_db(conn, new_id, new_token):
     #        new_token = "<redacted>"
 
-    #return {"id": new_id, "token": new_token}
+    # return {"id": new_id, "token": new_token}
     return new_token
 
 

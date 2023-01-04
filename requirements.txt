@@ -1,6 +1,6 @@
 fastapi
 requests
 uvicorn[standard]
-psycopg2-binary
+psycopg2
 prometheus-client
 prometheus_fastapi_instrumentator
