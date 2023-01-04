@@ -57,11 +57,11 @@ def create_bot_token(bot_id: str) -> bool:
     response.raise_for_status()
 
     return True
-    
-    #token = response.json().get("token", "")
-    #if token:
+
+    # token = response.json().get("token", "")
+    # if token:
     #    return token
-    #else:
+    # else:
     #    logging.error(response.text)
     #    return ""
 

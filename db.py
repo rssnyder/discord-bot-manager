@@ -63,7 +63,7 @@ def get_bot(conn, claimed: bool = False) -> tuple:
     result = cur.fetchone()
 
     if result:
-        logging.info(f"got: {result}")
+        logging.debug(f"got: {result}")
         conn.commit()
 
     cur.close()
@@ -205,7 +205,27 @@ def unclaimed_bots(conn) -> int:
     result = cur.fetchone()[0]
 
     if result:
-        logging.info(f"unclaimed: {result}")
+        logging.debug(f"unclaimed: {result}")
+
+    cur.close()
+
+    return result
+
+
+def all_bots(conn) -> int:
+    """
+    Get the number of bots
+    """
+
+    q = """SELECT COUNT(CLIENTID) FROM newbots;"""
+
+    cur = conn.cursor()
+
+    cur.execute(q)
+    result = cur.fetchone()[0]
+
+    if result:
+        logging.debug(f"total: {result}")
 
     cur.close()
 
