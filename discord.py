@@ -144,6 +144,28 @@ def get_bots() -> list:
         return []
 
 
+def change_bot_name(token: str, name: str) -> bool:
+    """
+    Change the name of the bot
+    """
+
+    resp = patch(
+        "https://discord.com/api/users/@me",
+        headers={"Authorization": f"Bot {token}", "Content-Type": "application/json"},
+        json={"username": name},
+    )
+
+    try:
+        resp.raise_for_status()
+    except:
+        return False
+
+    if not resp.json().get("username", False):
+        return False
+
+    return True
+
+
 def change_bot_photo(token: str, base64_photo: str) -> bool:
     """
     Change the photo of the bot

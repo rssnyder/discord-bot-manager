@@ -18,6 +18,7 @@ from discord import (
     create_bot,
     create_bot_token,
     get_teams,
+    change_bot_name,
     change_bot_photo,
 )
 from db import (
@@ -177,7 +178,6 @@ def sync_bot(bot_id: str = ""):
     """
 
     if bot_id:
-
         bot = get_bot(bot_id)
         if not bot:
             return {"error": "no bot found"}
@@ -196,7 +196,6 @@ def sync_bot(bot_id: str = ""):
             return {}
 
     else:
-
         bots = get_bots()
         if not bots:
             return {"error": "no bots found"}
@@ -239,8 +238,25 @@ def unclaimed_bot_count():
     return {"count": unclaimed}
 
 
+@app.put("/bot/name")
+def bot_name(bot_id: str = "", name: str = "") -> bool:
+    """
+    Change the name of the bot
+    """
+
+    bot = get_bot_id_db(conn, bot_id)
+
+    if not bot:
+        return {}
+
+    return change_bot_name(bot[1], name)
+
+
 @app.put("/bot/photo")
-def bot_photo(bot_id: str = "", photo_url: str = "") -> bool:
+def bot_photo(
+    bot_id: str = "",
+    photo_url: str = "https://www.freepnglogos.com/uploads/discord-logo-png/discord-logo-logodownload-download-logotipos-1.png",
+) -> bool:
     """
     Change the photo of the bot
     """
